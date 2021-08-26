@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "origin": {
+      "type": "string",
+      "minLength": 1
+    },
+    "destination": {
+      "type": "string",
+      "minLength": 1
+    },
+    "offeredBy": {
+      "type": "string",
+      "minLength": 1
+    },
+    "availableSeats": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "selectionStrategy": {
+      "type": "string",
+      "minLength": 1
+    },
+    "vehicle": {
+      "type": "object",
+      "properties": {
+        "vehicleOwner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "vehicleModel": {
+          "type": "string",
+          "minLength": 1
+        },
+        "vehicleNo": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "required": [
+    "origin",
+    "destination",
+    "availableSeats"
+  ],
+  "type": "object"
+}
