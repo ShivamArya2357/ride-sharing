@@ -179,6 +179,7 @@ public class RideServiceImpl implements RideService {
     public List<Ride> searchRide(Ride input) {
 
         logger.info("Inside RideServiceImpl...searchRide()");
+        List<RideEntity> ridesFilteredWithStrategy = new ArrayList<>();
         if (!rides.isEmpty()) {
             List<RideEntity> allRides = rides.stream().filter(ride -> !ENDED.equals(ride.getStatus())
                                             && ride.getAvailableSeats() > 0
@@ -186,17 +187,15 @@ public class RideServiceImpl implements RideService {
                                             && ride.getDestination().equals(input.getDestination())
                                             && ride.getAvailableSeats() >= input.getAvailableSeats()
             ).collect(Collectors.toList());
-            List<RideEntity> preferredRides;
             if (!allRides.isEmpty()) {
-                preferredRides = searchRideWithStrategy(input, allRides);
-            } else {
-                preferredRides = searchInterMediateRide(allRides, input); // find intermediate rides
+                ridesFilteredWithStrategy = searchRideWithStrategy(input, allRides);
             }
-            if (preferredRides != null && !preferredRides.isEmpty()) {
-                return mapToRideModel(preferredRides);
-            } else {
-                return mapToRideModel(allRides);
+            if (allRides.isEmpty() || ridesFilteredWithStrategy.isEmpty()) {
+                ridesFilteredWithStrategy = searchIntermediateRide(input); // find intermediate rides
             }
+        }
+        if (!ridesFilteredWithStrategy.isEmpty()) {
+            return mapToRideModel(ridesFilteredWithStrategy);
         } else {
             throw new RideSharingException(ErrorCode.NO_RIDE_FOUND);
         }
@@ -227,25 +226,25 @@ public class RideServiceImpl implements RideService {
     /**
      * This method will find indirect ride
      *
-     * @param allRides
      * @param input
      * @return List<Ride>
      */
-    private List<RideEntity> searchInterMediateRide(List<RideEntity> allRides, Ride input) {
+    private List<RideEntity> searchIntermediateRide(Ride input) {
 
-        List<RideEntity> allRidesFromOrigin = allRides.stream().filter(ride -> !ENDED.equals(ride.getStatus())
+        List<RideEntity> allRidesFromOrigin = rides.stream().filter(ride -> !ENDED.equals(ride.getStatus())
                                                 && ride.getAvailableSeats() > 0
                                                 && ride.getOrigin().equals(input.getOrigin())
                                                 && !ride.getDestination().equals(input.getDestination())
                                                 && ride.getAvailableSeats() >= input.getAvailableSeats()
         ).collect(Collectors.toList());
-        List<RideEntity> allRidesEndInDest = allRides.stream().filter(ride -> !ENDED.equals(ride.getStatus())
+        List<RideEntity> allRidesEndInDest = rides.stream().filter(ride -> !ENDED.equals(ride.getStatus())
                                                 && ride.getAvailableSeats() > 0
                                                 && !ride.getOrigin().equals(input.getOrigin())
                                                 && ride.getDestination().equals(input.getDestination())
                                                 && ride.getAvailableSeats() >= input.getAvailableSeats()
         ).collect(Collectors.toList());
         List<RideEntity> allInterMediateRides = new ArrayList<>();
+        Map<RideEntity, RideEntity> rideWithStopMap = new HashMap<>();
         if (!allRidesFromOrigin.isEmpty() && !allRidesEndInDest.isEmpty()) {
             for (RideEntity ridesFromOrigin : allRidesFromOrigin) {
                 String destination = ridesFromOrigin.getDestination();
@@ -254,15 +253,77 @@ public class RideServiceImpl implements RideService {
                     if (destination.equals(origin)) {
                         allInterMediateRides.add(ridesFromOrigin);
                         allInterMediateRides.add(ridesEndInDest);
+                        rideWithStopMap.put(ridesFromOrigin, ridesEndInDest);
                     }
                 }
             }
         }
         if (!allInterMediateRides.isEmpty()) {
-            return searchRideWithStrategy(input, allInterMediateRides);
+            return searchIntermediateRideWithStrategy(input, rideWithStopMap, allInterMediateRides);
         } else {
-            throw new RideSharingException(ErrorCode.NO_RIDE_FOUND);
+            return new ArrayList<>();
         }
+    }
+
+    /**
+     * This method will filter out indirect rides with given strategy
+     *
+     * @param input
+     * @param rideWithStopMap
+     * @param allInterMediateRides
+     * @return List<RideEntity>
+     */
+    public List<RideEntity> searchIntermediateRideWithStrategy(Ride input, Map<RideEntity, RideEntity> rideWithStopMap,
+                                                               List<RideEntity> allInterMediateRides
+    ) {
+
+        List<RideEntity> ridesFilteredWithStrategy = new ArrayList<>();
+        String selectionStrategy = input.getSelectionStrategy();
+        Map<Integer, List<RideEntity> > availableSeatsToRideMap = new HashMap<>();
+        if (StringUtils.isNotEmpty(selectionStrategy) && MOST_VACANT.equalsIgnoreCase(selectionStrategy)) {
+            int maxAvailableSeats = 0;
+            for (Map.Entry<RideEntity, RideEntity> entry : rideWithStopMap.entrySet()) {
+                RideEntity ridesFromOrigin = entry.getKey();
+                RideEntity ridesEndInDest = entry.getValue();
+                int availableSeats = ridesFromOrigin.getAvailableSeats();
+                maxAvailableSeats = Math.max(maxAvailableSeats, availableSeats);
+                List<RideEntity> temp;
+                if (availableSeatsToRideMap.containsKey(availableSeats)) {
+                    temp = availableSeatsToRideMap.get(availableSeats);
+                    temp.add(ridesFromOrigin);
+                    temp.add(ridesEndInDest);
+                } else {
+                    temp = new ArrayList<>();
+                    temp.add(ridesFromOrigin);
+                    temp.add(ridesEndInDest);
+                    availableSeatsToRideMap.put(availableSeats, temp);
+                }
+            }
+            ridesFilteredWithStrategy = availableSeatsToRideMap.get(maxAvailableSeats);
+        } else if (StringUtils.isNotEmpty(selectionStrategy)) {
+            PreferredVehicle.valueOf(selectionStrategy.toUpperCase());
+            try {
+                for (Map.Entry<RideEntity, RideEntity> entry : rideWithStopMap.entrySet()) {
+                    RideEntity ridesFromOrigin = entry.getKey();
+                    RideEntity ridesEndInDest = entry.getValue();
+                    VehicleEntity vehicleEntity1 = RideHelper.getVehicleById(ridesFromOrigin.getVehicleId());
+                    VehicleEntity vehicleEntity2 = RideHelper.getVehicleById(ridesEndInDest.getVehicleId());
+                    String vehicleModel1 = vehicleEntity1.getVehicleModel();
+                    String vehicleModel2 = vehicleEntity2.getVehicleModel();
+                    if (vehicleModel1.equalsIgnoreCase(selectionStrategy)
+                            && vehicleModel2.equalsIgnoreCase(selectionStrategy)
+                    ) {
+                        ridesFilteredWithStrategy.add(ridesFromOrigin);
+                        ridesFilteredWithStrategy.add(ridesEndInDest);
+                    }
+                }
+            } catch (Exception e) {
+                throw new RideSharingException(e);
+            }
+        } else {
+            return allInterMediateRides;
+        }
+        return ridesFilteredWithStrategy;
     }
 
     /**
@@ -275,34 +336,37 @@ public class RideServiceImpl implements RideService {
     public List<RideEntity> searchRideWithStrategy(Ride input, List<RideEntity> allRides) {
 
         Map<Integer, List<RideEntity> > availableSeatsToRideMap = new HashMap<>();
-        List<RideEntity> preferredRides = null;
+        List<RideEntity> ridesFilteredWithStrategy;
         String selectionStrategy = input.getSelectionStrategy();
-        if (StringUtils.isNotEmpty(selectionStrategy) && MOST_VACANT.equalsIgnoreCase(selectionStrategy.trim())) {
+        if (StringUtils.isNotEmpty(selectionStrategy) && MOST_VACANT.equalsIgnoreCase(selectionStrategy)) {
             int maxAvailableSeats = 0;
             for (RideEntity ride : allRides) {
                 Integer availableSeats = ride.getAvailableSeats();
                 maxAvailableSeats = Math.max(maxAvailableSeats, availableSeats);
+                List<RideEntity> temp;
                 if (availableSeatsToRideMap.containsKey(availableSeats)) {
-                    List<RideEntity> temp = availableSeatsToRideMap.get(availableSeats);
+                    temp = availableSeatsToRideMap.get(availableSeats);
                     temp.add(ride);
                 } else {
-                    List<RideEntity> temp = new ArrayList<>();
+                    temp = new ArrayList<>();
                     temp.add(ride);
                     availableSeatsToRideMap.put(availableSeats, temp);
                 }
             }
-            preferredRides = availableSeatsToRideMap.get(maxAvailableSeats);
+            ridesFilteredWithStrategy = availableSeatsToRideMap.get(maxAvailableSeats);
         } else if (StringUtils.isNotEmpty(selectionStrategy)) {
             try {
-                PreferredVehicle.valueOf(selectionStrategy.trim().toUpperCase());
-                preferredRides = allRides.stream().filter(extractedRide -> {
+                PreferredVehicle.valueOf(selectionStrategy.toUpperCase());
+                ridesFilteredWithStrategy = allRides.stream().filter(extractedRide -> {
                         VehicleEntity vehicleEntity = RideHelper.getVehicleById(extractedRide.getVehicleId());
-                        return vehicleEntity.getVehicleModel().equals(selectionStrategy.trim());
+                        return vehicleEntity.getVehicleModel().equalsIgnoreCase(selectionStrategy);
                 }).collect(Collectors.toList());
             } catch (Exception e) {
                 throw new RideSharingException(e);
             }
+        } else {
+            return allRides;
         }
-        return preferredRides;
+        return ridesFilteredWithStrategy;
     }
 }

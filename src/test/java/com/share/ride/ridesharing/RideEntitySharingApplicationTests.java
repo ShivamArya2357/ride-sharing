@@ -278,6 +278,74 @@ class RideSharingApplicationTests {
 		rideController.rideStatistics();
 	}
 
+	/**
+	 * When there is no direct ride but some indirect ride is possible
+	 *
+	 */
+	@Test
+	public void tc8() {
+
+		// TODO: 28/08/21 Issue in this test case 
+		// add user1 and vehicle and offer rides
+		ServiceRequest<User> user1 = createUserReq("Rohan", "M", 36, "9648643784");
+		ServiceRequest<Vehicle> vehicle1 = createVehicleReq("Rohan","Swift",
+				"PB-01-12345"
+		);
+		ServiceRequest<Vehicle> vehicle2 = createVehicleReq("Rohan","Activa",
+				"PB-01-12346"
+		);
+		userController.addUser(user1);
+		vehicleController.addVehicle(vehicle1);
+		vehicleController.addVehicle(vehicle2);
+		rideController.offerRide(createOfferRideReq(user1.getPayload(), "Chandigarh",
+				5, "Delhi", vehicle1.getPayload())
+		);
+		rideController.offerRide(createOfferRideReq(user1.getPayload(), "Chandigarh",
+				3, "Simla", vehicle2.getPayload())
+		);
+
+		// add user2 and vehicle and offer rides
+		ServiceRequest<User> user2 = createUserReq("Rohani", "M", 36, "9648643783");
+		ServiceRequest<Vehicle> vehicle3 = createVehicleReq("Rohani","Honda",
+				"UP-01-56754"
+		);
+		ServiceRequest<Vehicle> vehicle4 = createVehicleReq("Rohani","Apache",
+				"UP-01-534675"
+		);
+		ServiceRequest<Vehicle> vehicle5 = createVehicleReq("Rohani","Mercedes",
+				"UP-01-354674"
+		);
+		userController.addUser(user2);
+		vehicleController.addVehicle(vehicle3);
+		vehicleController.addVehicle(vehicle4);
+		vehicleController.addVehicle(vehicle5);
+		rideController.offerRide(createOfferRideReq(user2.getPayload(), "Delhi",
+				5, "Lucknow", vehicle3.getPayload())
+		);
+		rideController.offerRide(createOfferRideReq(user2.getPayload(), "Simla",
+				2, "Lucknow", vehicle4.getPayload())
+		);
+		rideController.offerRide(createOfferRideReq(user2.getPayload(), "Simla",
+				3, "Dehradun", vehicle5.getPayload())
+		);
+
+		// add user3 and search for ride
+		ServiceRequest<User> user3 = createUserReq("Shivam", "F", 26, "9648643786");
+		userController.addUser(user3);
+		ServiceResponse<Rides> output = rideController.searchRide(createSearchRideReq(user3.getPayload(),
+				"Chandigarh", "Lucknow", 3, null)
+		);
+		assertEquals(2, output.getResult().getRides().size());
+
+		// select ride 1
+		rideController.selectRide(createSelectRideReq(output.getResult().getRides().get(0), user3.getPayload()));
+		// select ride 2
+		rideController.selectRide(createSelectRideReq(output.getResult().getRides().get(1), user3.getPayload()));
+
+		// print ride statistics
+		rideController.rideStatistics();
+	}
+
 	private ServiceRequest<Ride> createEndRideReq(String id) {
 
 		Ride ride = new Ride();
