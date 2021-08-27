@@ -1,6 +1,6 @@
 package com.share.ride.ridesharing.service.ride;
 
-import com.share.ride.ridesharing.model.Ride;
+import com.share.ride.ridesharing.contract.Ride;
 
 import java.util.List;
 

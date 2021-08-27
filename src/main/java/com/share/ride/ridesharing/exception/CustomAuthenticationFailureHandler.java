@@ -1,7 +1,7 @@
 package com.share.ride.ridesharing.exception;
 
 import com.share.ride.ridesharing.enums.ServiceStatus;
-import com.share.ride.ridesharing.model.Error;
+import com.share.ride.ridesharing.contract.Error;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.share.ride.ridesharing.model.ServiceResponse;
+import com.share.ride.ridesharing.contract.ServiceResponse;
 import com.share.ride.ridesharing.util.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

@@ -1,9 +1,10 @@
-package com.share.ride.ridesharing.model;
+package com.share.ride.ridesharing.contract;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.share.ride.ridesharing.entity.BaseModel;
 
 @JsonSerialize
 @JsonInclude(JsonInclude.Include.NON_NULL)

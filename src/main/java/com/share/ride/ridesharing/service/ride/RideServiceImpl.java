@@ -1,11 +1,13 @@
 package com.share.ride.ridesharing.service.ride;
 
+import com.share.ride.ridesharing.contract.Ride;
+import com.share.ride.ridesharing.entity.VehicleEntity;
 import com.share.ride.ridesharing.enums.ErrorCode;
 import com.share.ride.ridesharing.enums.PreferredVehicle;
 import com.share.ride.ridesharing.exception.RideSharingException;
 import com.share.ride.ridesharing.helper.RideHelper;
-import com.share.ride.ridesharing.model.Ride;
-import com.share.ride.ridesharing.model.User;
+import com.share.ride.ridesharing.entity.RideEntity;
+import com.share.ride.ridesharing.entity.UserEntity;
 import com.share.ride.ridesharing.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +17,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import static com.share.ride.ridesharing.enums.Status.CLOSED;
-import static com.share.ride.ridesharing.enums.Status.IN_PROGRESS;
+import static com.share.ride.ridesharing.enums.Status.*;
 
 @Component
 public class RideServiceImpl implements RideService {
@@ -24,164 +25,132 @@ public class RideServiceImpl implements RideService {
     private static final Logger logger = LoggerFactory.getLogger(RideServiceImpl.class);
 
     private static final String MOST_VACANT = "Most Vacant";
+    private static final String UNDERSCORE = "_";
 
-    private static final List<Ride> rides = new ArrayList<>();
-    private static final Set<String> activesRides = new HashSet<>();
+    private static final List<RideEntity> rides = new ArrayList<>();
+    private static final Set<String> existingVehicles = new HashSet<>();
 
     /**
      * Using this method user can offer a ride
      *
-     * @param inputRide
+     * @param input
      */
     @Override
-    public Ride offerRide(Ride inputRide) {
+    public Ride offerRide(Ride input) {
 
         logger.info("Inside RideServiceImpl...offerRide()");
-        if (isActiveRide(inputRide)) {
-            inputRide.setStatus(IN_PROGRESS);
-            generateRideId(inputRide);
-            mapOfferedRideToUser(inputRide);
-            rides.add(inputRide);
-            activesRides.add(inputRide.getVehicle().getVehicleNo());
-            return inputRide;
+        String vehicleNo = input.getVehicleNo();
+        if (!isExistingRide(vehicleNo)) {
+            mapToRideEntity(input);
+            existingVehicles.add(vehicleNo);
+            return input;
         } else {
-            throw new RideSharingException(ErrorCode.RIDE_IS_ALREADY_OFFERED, inputRide.getVehicle().getVehicleNo());
+            throw new RideSharingException(ErrorCode.RIDE_IS_ALREADY_OFFERED, vehicleNo);
         }
     }
 
     /**
      * This method will map offeredRide to offeredUser
      *
-     * @param inputRide
+     * @param input
      */
-    private void mapOfferedRideToUser(Ride inputRide) {
+    private void mapToRideEntity(Ride input) {
 
-        User user = RideHelper.getUserByName(inputRide.getOfferedBy());
-        user.setOfferedRide(user.getOfferedRide() + 1);
-        user.setRideId(inputRide.getId());
-    }
-
-    /**
-     * This method will generate ride id for every ride
-     *
-     * @param inputRide
-     */
-    private void generateRideId(Ride inputRide) {
-
-        inputRide.setId(String.valueOf(ThreadLocalRandom.current().nextInt(10000)));
+        RideEntity output = new RideEntity();
+        output.setId(String.valueOf(ThreadLocalRandom.current().nextInt(10000)));
+        output.setStatus(OFFERED);
+        output.setOfferedBy(input.getOfferedBy());
+        output.setOrigin(input.getOrigin());
+        output.setDestination(input.getDestination());
+        output.setAvailableSeats(input.getAvailableSeats());
+        UserEntity userEntity = RideHelper.getUserById(input.getUserId());
+        userEntity.setOfferedRide(userEntity.getOfferedRide() + 1);
+        userEntity.setRideId(output.getId());
+        output.setUserId(userEntity.getId());
+        output.setVehicleId(input.getVehicleId());
+        input.setId(output.getId());
+        rides.add(output);
     }
 
     /**
      * This method will check If Ride has valid data or not
      *
-     * @param inputRide
+     * @param vehicleNo
      * @return true or false
      */
-    private boolean isActiveRide(Ride inputRide) {
+    private boolean isExistingRide(String vehicleNo) {
 
-        if (activesRides.contains(inputRide.getVehicle().getVehicleNo())) {
-            return false;
-        } else {
+        if (existingVehicles.contains(vehicleNo)) {
             return true;
+        } else {
+            return false;
         }
     }
 
     /**
      * Using this method an user can select a ride
      *
-     * @param inputRide
+     * @param input
      * @return Ride
      */
     @Override
-    public Ride selectRide(Ride inputRide) {
+    public Ride selectRide(Ride input) {
 
         logger.info("Inside RideServiceImpl...selectRide()");
         if (!rides.isEmpty()) {
-            return selectRideWithStrategy(inputRide, inputRide.getSelectionStrategy());
-        } else {
-            throw new RideSharingException(ErrorCode.NO_RIDE_FOUND);
-        }
-    }
-
-    /**
-     * This method will select the appropriate ride from list of rides and will update the selected ride
-     *
-     * @param inputRide
-     * @param strategy
-     * @return Ride
-     */
-    private Ride selectRideWithStrategy(Ride inputRide, String strategy) {
-
-        List<Ride> extractedRides = rides.stream().filter(
-                                        ride -> IN_PROGRESS.equals(ride.getStatus())
-                                        && ride.getAvailableSeats() > 0
-                                        && ride.getOrigin().equals(inputRide.getOrigin())
-                                        && ride.getDestination().equals(inputRide.getDestination())
-                                        && ride.getAvailableSeats() >= inputRide.getAvailableSeats()
-                                     ).collect(Collectors.toList());
-        if (!extractedRides.isEmpty()) {
-            Ride selectedRide;
-            if (StringUtils.isNotEmpty(strategy.trim()) && !strategy.equalsIgnoreCase(MOST_VACANT)) {
-                try {
-                    PreferredVehicle.valueOf(strategy.trim().toUpperCase());
-                    extractedRides = extractedRides.stream().filter(extractedRide -> extractedRide.getVehicle()
-                            .getVehicleModel().equals(strategy.trim())
-                    ).collect(Collectors.toList());
-                    if (extractedRides.isEmpty()) {
-                        throw new RideSharingException(ErrorCode.NO_RIDE_FOUND);
-                    } else if (extractedRides.size() > 1) {
-                        selectedRide = extractedRides.stream().max(Comparator.comparingInt(Ride::getAvailableSeats))
-                                        .get();
-                    } else {
-                        selectedRide = extractedRides.get(0);
-                    }
-                } catch (Exception e) {
-                    throw new RideSharingException(e);
-                }
+            Optional<RideEntity> rideEntityOpt = rides.stream().filter(
+                    rideEntity -> !ENDED.equals(rideEntity.getStatus()) && rideEntity.getId().equals(input.getId())
+            ).findFirst();
+            if (rideEntityOpt.isPresent()) {
+                RideEntity rideEntity = rideEntityOpt.get();
+                UserEntity userEntity = RideHelper.getUserById(input.getUserId());
+                userEntity.setRideId(rideEntity.getId());
+                userEntity.setTakenRide(userEntity.getTakenRide() + 1);
+                rideEntity.setAvailableSeats(rideEntity.getAvailableSeats() - 1);
+                rideEntity.setRequestedBy(userEntity.getUserName());
+                rideEntity.setStatus(IN_PROGRESS);
+                return input;
             } else {
-                selectedRide = extractedRides.stream().max(Comparator.comparingInt(Ride::getAvailableSeats)).get();
+                throw new RideSharingException(ErrorCode.NO_RIDE_FOUND);
             }
-            mapSelectedRideToUser(inputRide);
-            selectedRide.setAvailableSeats(selectedRide.getAvailableSeats() - 1);
-            return selectedRide;
         } else {
             throw new RideSharingException(ErrorCode.NO_RIDE_FOUND);
         }
-    }
-
-    /**
-     * This method will map selected ride to requested user
-     *
-     * @param inputRide
-     */
-    private void mapSelectedRideToUser(Ride inputRide) {
-
-        User user = RideHelper.getUserByName(inputRide.getRequestedBy());
-        user.setTakenRide(user.getTakenRide() + 1);
-        user.setRideId(inputRide.getId());
     }
 
     /**
      * Using this method driver can end a ride
      *
-     * @param inputRide
+     * @param input
      * @return Ride
      */
     @Override
-    public Ride endRide(Ride inputRide) {
+    public Ride endRide(Ride input) {
 
         logger.info("Inside RideServiceImpl...endRide()");
-        Optional<Ride> selectedRideOpt = rides.stream().filter(ride -> IN_PROGRESS.equals(ride.getStatus())
-                        && ride.getVehicle().getVehicleNo().equals(inputRide.getVehicle().getVehicleNo())
+        Optional<RideEntity> selectedRideOpt = rides.stream().filter(ride -> !ENDED.equals(ride.getStatus())
+                        && ride.getId().equals(input.getId())
         ).findFirst();
         if (selectedRideOpt.isPresent()) {
-            Ride selectedRide = selectedRideOpt.get();
-            selectedRide.setStatus(CLOSED);
-            activesRides.remove(selectedRide.getVehicle().getVehicleNo());
-            return selectedRide;
+            RideEntity selectedRide = selectedRideOpt.get();
+            selectedRide.setStatus(ENDED);
+            existingVehicles.remove(findVehicleNo(selectedRide.getVehicleId()));
+            return input;
         } else {
             throw new RideSharingException(ErrorCode.NOT_A_VALID_RIDE);
         }
+    }
+
+    /**
+     * This method will return vehicleNo
+     *
+     * @param vehicleId
+     * @return vehicleNo
+     */
+    private String findVehicleNo(String vehicleId) {
+
+        VehicleEntity vehicleEntity = RideHelper.getVehicleById(vehicleId);
+        return vehicleEntity.getVehicleNo();
     }
 
     /**
@@ -192,8 +161,8 @@ public class RideServiceImpl implements RideService {
     public void rideStatistics() {
 
         logger.info("Inside RideServiceImpl...rideStatistics()");
-        List<User> users = RideHelper.getUsers();
-        for (User user : users) {
+        List<UserEntity> users = RideHelper.getAllUsers();
+        for (UserEntity user : users) {
             System.out.println(user.getUserName() + ": " + user.getTakenRide() + " Taken, " + user.getOfferedRide()
                     + " Offered"
             );
@@ -203,30 +172,30 @@ public class RideServiceImpl implements RideService {
     /**
      * This method will return all the rides from source to destination
      *
-     * @param inputRide
+     * @param input
      * @return list of rides
      */
     @Override
-    public List<Ride> searchRide(Ride inputRide) {
+    public List<Ride> searchRide(Ride input) {
 
         logger.info("Inside RideServiceImpl...searchRide()");
         if (!rides.isEmpty()) {
-            List<Ride> allRides = rides.stream().filter(ride -> IN_PROGRESS.equals(ride.getStatus())
-                    && ride.getAvailableSeats() > 0
-                    && ride.getOrigin().equals(inputRide.getOrigin())
-                    && ride.getDestination().equals(inputRide.getDestination())
-                    && ride.getAvailableSeats() >= inputRide.getAvailableSeats()
+            List<RideEntity> allRides = rides.stream().filter(ride -> !ENDED.equals(ride.getStatus())
+                                            && ride.getAvailableSeats() > 0
+                                            && ride.getOrigin().equals(input.getOrigin())
+                                            && ride.getDestination().equals(input.getDestination())
+                                            && ride.getAvailableSeats() >= input.getAvailableSeats()
             ).collect(Collectors.toList());
-            List<Ride> preferredRides;
+            List<RideEntity> preferredRides;
             if (!allRides.isEmpty()) {
-                preferredRides = searchRideWithStrategy(inputRide, allRides);
+                preferredRides = searchRideWithStrategy(input, allRides);
             } else {
-                preferredRides = searchInterMediateRide(allRides, inputRide);
+                preferredRides = searchInterMediateRide(allRides, input); // find intermediate rides
             }
             if (preferredRides != null && !preferredRides.isEmpty()) {
-                return preferredRides;
+                return mapToRideModel(preferredRides);
             } else {
-                return allRides;
+                return mapToRideModel(allRides);
             }
         } else {
             throw new RideSharingException(ErrorCode.NO_RIDE_FOUND);
@@ -234,39 +203,63 @@ public class RideServiceImpl implements RideService {
     }
 
     /**
+     * This method will map database entity to pojo
+     *
+     * @param rideEntities
+     * @return List<Ride>
+     */
+    private List<Ride> mapToRideModel(List<RideEntity> rideEntities) {
+
+        List<Ride> rides = new ArrayList<>();
+        for (RideEntity rideEntity : rideEntities) {
+            Ride ride = new Ride();
+            ride.setId(rideEntity.getId());
+            ride.setOfferedBy(rideEntity.getOfferedBy());
+            ride.setOrigin(rideEntity.getOrigin());
+            ride.setIntermediateStop(rideEntity.getIntermediateStop());
+            ride.setDestination(rideEntity.getDestination());
+            rides.add(ride);
+        }
+        return rides;
+    }
+
+
+    /**
      * This method will find indirect ride
      *
      * @param allRides
-     * @param inputRide
+     * @param input
      * @return List<Ride>
      */
-    private List<Ride> searchInterMediateRide(List<Ride> allRides, Ride inputRide) {
+    private List<RideEntity> searchInterMediateRide(List<RideEntity> allRides, Ride input) {
 
-        List<Ride> allRidesFromOrigin = allRides.stream().filter(ride -> IN_PROGRESS.equals(ride.getStatus())
-                                            && ride.getAvailableSeats() > 0
-                                            && ride.getOrigin().equals(inputRide.getOrigin())
-                                            && !ride.getDestination().equals(inputRide.getDestination())
-                                            && ride.getAvailableSeats() >= inputRide.getAvailableSeats()
+        List<RideEntity> allRidesFromOrigin = allRides.stream().filter(ride -> !ENDED.equals(ride.getStatus())
+                                                && ride.getAvailableSeats() > 0
+                                                && ride.getOrigin().equals(input.getOrigin())
+                                                && !ride.getDestination().equals(input.getDestination())
+                                                && ride.getAvailableSeats() >= input.getAvailableSeats()
         ).collect(Collectors.toList());
-        List<Ride> allRidesEndInDest = allRides.stream().filter(ride -> IN_PROGRESS.equals(ride.getStatus())
-                                        && ride.getAvailableSeats() > 0
-                                        && !ride.getOrigin().equals(inputRide.getOrigin())
-                                        && ride.getDestination().equals(inputRide.getDestination())
-                                        && ride.getAvailableSeats() >= inputRide.getAvailableSeats()
+        List<RideEntity> allRidesEndInDest = allRides.stream().filter(ride -> !ENDED.equals(ride.getStatus())
+                                                && ride.getAvailableSeats() > 0
+                                                && !ride.getOrigin().equals(input.getOrigin())
+                                                && ride.getDestination().equals(input.getDestination())
+                                                && ride.getAvailableSeats() >= input.getAvailableSeats()
         ).collect(Collectors.toList());
-        List<Ride> allInterMediateRides = new ArrayList<>();
-        for (Ride ridesFromOrigin : allRidesFromOrigin) {
-            String destination = ridesFromOrigin.getDestination();
-            for (Ride ridesEndInDest : allRidesEndInDest) {
-                String origin = ridesEndInDest.getOrigin();
-                if (destination.equals(origin)) {
-                    allInterMediateRides.add(ridesFromOrigin);
-                    allInterMediateRides.add(ridesEndInDest);
+        List<RideEntity> allInterMediateRides = new ArrayList<>();
+        if (!allRidesFromOrigin.isEmpty() && !allRidesEndInDest.isEmpty()) {
+            for (RideEntity ridesFromOrigin : allRidesFromOrigin) {
+                String destination = ridesFromOrigin.getDestination();
+                for (RideEntity ridesEndInDest : allRidesEndInDest) {
+                    String origin = ridesEndInDest.getOrigin();
+                    if (destination.equals(origin)) {
+                        allInterMediateRides.add(ridesFromOrigin);
+                        allInterMediateRides.add(ridesEndInDest);
+                    }
                 }
             }
         }
         if (!allInterMediateRides.isEmpty()) {
-            return searchRideWithStrategy(inputRide, allInterMediateRides);
+            return searchRideWithStrategy(input, allInterMediateRides);
         } else {
             throw new RideSharingException(ErrorCode.NO_RIDE_FOUND);
         }
@@ -275,25 +268,25 @@ public class RideServiceImpl implements RideService {
     /**
      * This method will select rides based on selected strategy
      *
-     * @param inputRide
+     * @param input
      * @param allRides
      * @return List<Ride>
      */
-    public List<Ride> searchRideWithStrategy(Ride inputRide, List<Ride> allRides) {
+    public List<RideEntity> searchRideWithStrategy(Ride input, List<RideEntity> allRides) {
 
-        Map<Integer, List<Ride> > availableSeatsToRideMap = new HashMap<>();
-        List<Ride> preferredRides = null;
-        String selectionStrategy = inputRide.getSelectionStrategy();
+        Map<Integer, List<RideEntity> > availableSeatsToRideMap = new HashMap<>();
+        List<RideEntity> preferredRides = null;
+        String selectionStrategy = input.getSelectionStrategy();
         if (StringUtils.isNotEmpty(selectionStrategy) && MOST_VACANT.equalsIgnoreCase(selectionStrategy.trim())) {
             int maxAvailableSeats = 0;
-            for (Ride ride : allRides) {
+            for (RideEntity ride : allRides) {
                 Integer availableSeats = ride.getAvailableSeats();
                 maxAvailableSeats = Math.max(maxAvailableSeats, availableSeats);
                 if (availableSeatsToRideMap.containsKey(availableSeats)) {
-                    List<Ride> temp = availableSeatsToRideMap.get(availableSeats);
+                    List<RideEntity> temp = availableSeatsToRideMap.get(availableSeats);
                     temp.add(ride);
                 } else {
-                    List<Ride> temp = new ArrayList<>();
+                    List<RideEntity> temp = new ArrayList<>();
                     temp.add(ride);
                     availableSeatsToRideMap.put(availableSeats, temp);
                 }
@@ -302,9 +295,10 @@ public class RideServiceImpl implements RideService {
         } else if (StringUtils.isNotEmpty(selectionStrategy)) {
             try {
                 PreferredVehicle.valueOf(selectionStrategy.trim().toUpperCase());
-                preferredRides = allRides.stream().filter(extractedRide -> extractedRide.getVehicle()
-                        .getVehicleModel().equals(selectionStrategy.trim())
-                ).collect(Collectors.toList());
+                preferredRides = allRides.stream().filter(extractedRide -> {
+                        VehicleEntity vehicleEntity = RideHelper.getVehicleById(extractedRide.getVehicleId());
+                        return vehicleEntity.getVehicleModel().equals(selectionStrategy.trim());
+                }).collect(Collectors.toList());
             } catch (Exception e) {
                 throw new RideSharingException(e);
             }

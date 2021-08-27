@@ -1,9 +1,8 @@
 package com.share.ride.ridesharing.controller.vehicle;
 
-import com.share.ride.ridesharing.model.ServiceRequest;
-import com.share.ride.ridesharing.model.ServiceResponse;
-import com.share.ride.ridesharing.model.User;
-import com.share.ride.ridesharing.model.Vehicle;
+import com.share.ride.ridesharing.contract.ServiceRequest;
+import com.share.ride.ridesharing.contract.ServiceResponse;
+import com.share.ride.ridesharing.contract.Vehicle;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

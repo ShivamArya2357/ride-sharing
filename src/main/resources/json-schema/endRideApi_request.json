@@ -1,11 +1,15 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "properties": {
-    "origin": {
+    "id": {
       "type": "string",
       "minLength": 1
     },
-    "destination": {
+    "userId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "vehicleId": {
       "type": "string",
       "minLength": 1
     },
@@ -13,37 +17,41 @@
       "type": "string",
       "minLength": 1
     },
+    "requestedBy": {
+      "type": "string",
+      "minLength": 1
+    },
+    "origin": {
+      "type": "string",
+      "minLength": 1
+    },
+    "intermediateStop": {
+      "type": "string",
+      "minLength": 1
+    },
+    "destination": {
+      "type": "string",
+      "minLength": 1
+    },
     "availableSeats": {
       "type": "integer",
       "minimum": 1
     },
-    "selectionStrategy": {
+    "vehicleModel": {
       "type": "string",
       "minLength": 1
     },
-    "vehicle": {
-      "type": "object",
-      "properties": {
-        "vehicleOwner": {
-          "type": "string",
-          "minLength": 1
-        },
-        "vehicleModel": {
-          "type": "string",
-          "minLength": 1
-        },
-        "vehicleNo": {
-          "type": "string",
-          "minLength": 1
-        }
-      },
-      "required": [
-        "vehicleNo"
-      ]
+    "vehicleNo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "selectionStrategy": {
+      "type": "string",
+      "minLength": 1
     }
   },
   "required": [
-    "vehicle"
+    "id"
   ],
   "type": "object"
 }

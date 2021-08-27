@@ -2,8 +2,8 @@ package com.share.ride.ridesharing.exception;
 
 import com.share.ride.ridesharing.enums.ErrorCode;
 import com.share.ride.ridesharing.enums.ServiceStatus;
-import com.share.ride.ridesharing.model.Error;
-import com.share.ride.ridesharing.model.ServiceResponse;
+import com.share.ride.ridesharing.contract.Error;
+import com.share.ride.ridesharing.contract.ServiceResponse;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

@@ -1,37 +1,36 @@
-package com.share.ride.ridesharing.model;
+package com.share.ride.ridesharing.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.share.ride.ridesharing.util.ObjectMapperFactory;
 
 @JsonSerialize
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonIgnoreProperties(ignoreUnknown=true)
-public class ServiceRequest<T> {
-	
-	@JsonProperty("payload")
-	private T payload;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class BaseModel {
 
-	public T getPayload() {
-		return payload;
-	}
-
-	public void setPayload(T payload) {
-		this.payload = payload;
-	}
+	@JsonProperty("id")
+	private String id;
 	
 	@Override
 	public String toString() {
 
-		ObjectMapper mapper = new ObjectMapper();
 		try {
-			return mapper.writeValueAsString(this);
+			return ObjectMapperFactory.getMapper().writeValueAsString(this);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 			return this.toString();
 		}
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 }

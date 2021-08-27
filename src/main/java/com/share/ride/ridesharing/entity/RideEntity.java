@@ -1,4 +1,4 @@
-package com.share.ride.ridesharing.model;
+package com.share.ride.ridesharing.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -6,14 +6,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.share.ride.ridesharing.enums.Status;
 
-import java.util.List;
-
-import static com.share.ride.ridesharing.enums.Status.CLOSED;
+import static com.share.ride.ridesharing.enums.Status.ENDED;
 
 @JsonSerialize
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Ride extends BaseModel {
+public class RideEntity extends BaseModel {
 
     @JsonProperty("offeredBy")
     private String offeredBy;
@@ -24,40 +22,28 @@ public class Ride extends BaseModel {
     @JsonProperty("origin")
     private String origin;
 
-    @JsonProperty("availableSeats")
-    private Integer availableSeats;
-
-    @JsonProperty("vehicle")
-    private Vehicle vehicle;
+    @JsonProperty("intermediateStop")
+    private String intermediateStop;
 
     @JsonProperty("destination")
     private String destination;
 
+    @JsonProperty("availableSeats")
+    private Integer availableSeats;
+
     @JsonProperty("status")
-    private Status status = CLOSED;
+    private Status status = ENDED;
 
     @JsonProperty("selectionStrategy")
     private String selectionStrategy;
 
-    public Ride() {
-    }
+    @JsonProperty("userId")
+    private String userId;
 
-    public Ride(String offeredBy, String origin, Integer availableSeats, Vehicle vehicle, String destination) {
+    @JsonProperty("vehicleId")
+    private String vehicleId;
 
-        this.offeredBy = offeredBy;
-        this.origin = origin;
-        this.availableSeats = availableSeats;
-        this.vehicle = vehicle;
-        this.destination = destination;
-    }
-
-    public Ride(String offeredBy, String origin, String destination, Integer availableSeats, String selectionStrategy) {
-
-        this.offeredBy = offeredBy;
-        this.origin = origin;
-        this.destination = destination;
-        this.availableSeats = availableSeats;
-        this.selectionStrategy = selectionStrategy;
+    public RideEntity() {
     }
 
     public String getOfferedBy() {
@@ -84,20 +70,20 @@ public class Ride extends BaseModel {
         this.origin = origin;
     }
 
+    public String getIntermediateStop() {
+        return intermediateStop;
+    }
+
+    public void setIntermediateStop(String intermediateStop) {
+        this.intermediateStop = intermediateStop;
+    }
+
     public Integer getAvailableSeats() {
         return availableSeats;
     }
 
     public void setAvailableSeats(Integer availableSeats) {
         this.availableSeats = availableSeats;
-    }
-
-    public Vehicle getVehicle() {
-        return vehicle;
-    }
-
-    public void setVehicle(Vehicle vehicle) {
-        this.vehicle = vehicle;
     }
 
     public String getDestination() {
@@ -122,5 +108,21 @@ public class Ride extends BaseModel {
 
     public void setSelectionStrategy(String selectionStrategy) {
         this.selectionStrategy = selectionStrategy;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getVehicleId() {
+        return vehicleId;
+    }
+
+    public void setVehicleId(String vehicleId) {
+        this.vehicleId = vehicleId;
     }
 }

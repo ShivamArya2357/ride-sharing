@@ -1,11 +1,11 @@
 package com.share.ride.ridesharing.controller.user;
 
+import com.share.ride.ridesharing.contract.User;
 import com.share.ride.ridesharing.enums.ApiName;
 import com.share.ride.ridesharing.enums.ServiceStatus;
 import com.share.ride.ridesharing.exception.RideSharingException;
-import com.share.ride.ridesharing.model.ServiceRequest;
-import com.share.ride.ridesharing.model.ServiceResponse;
-import com.share.ride.ridesharing.model.User;
+import com.share.ride.ridesharing.contract.ServiceRequest;
+import com.share.ride.ridesharing.contract.ServiceResponse;
 import com.share.ride.ridesharing.service.user.UserService;
 import com.share.ride.ridesharing.validation.ApiRequestValidator;
 import org.slf4j.Logger;
@@ -27,12 +27,12 @@ public class UserController implements UserResources {
     private UserService userService;
 
     @Override
-    public ServiceResponse<User> addUser(ServiceRequest<User> inputUser) {
+    public ServiceResponse<User> addUser(ServiceRequest<User> input) {
 
         logger.info("Start UserController...addUser");
         try {
-            apiRequestValidator.validate(inputUser.getPayload(), ApiName.addUserApi);
-            User output = userService.addUser(inputUser.getPayload());
+            apiRequestValidator.validate(input.getPayload(), ApiName.addUserApi);
+            User output = userService.addUser(input.getPayload());
             ServiceResponse<User> serviceResponse = new ServiceResponse<>();
             serviceResponse.setResult(output);
             serviceResponse.setStatus(ServiceStatus.SUCCESS);

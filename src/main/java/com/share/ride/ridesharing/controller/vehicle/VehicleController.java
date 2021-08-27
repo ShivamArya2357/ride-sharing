@@ -1,11 +1,12 @@
 package com.share.ride.ridesharing.controller.vehicle;
 
+import com.share.ride.ridesharing.contract.Vehicle;
 import com.share.ride.ridesharing.enums.ApiName;
 import com.share.ride.ridesharing.enums.ServiceStatus;
 import com.share.ride.ridesharing.exception.RideSharingException;
-import com.share.ride.ridesharing.model.ServiceRequest;
-import com.share.ride.ridesharing.model.ServiceResponse;
-import com.share.ride.ridesharing.model.Vehicle;
+import com.share.ride.ridesharing.contract.ServiceRequest;
+import com.share.ride.ridesharing.contract.ServiceResponse;
+import com.share.ride.ridesharing.entity.VehicleEntity;
 import com.share.ride.ridesharing.service.vehicle.VehicleService;
 import com.share.ride.ridesharing.validation.ApiRequestValidator;
 import org.slf4j.Logger;
@@ -27,12 +28,12 @@ public class VehicleController implements VehicleResources {
     private VehicleService vehicleService;
 
     @Override
-    public ServiceResponse<Vehicle> addVehicle(ServiceRequest<Vehicle> inputVehicle) {
+    public ServiceResponse<Vehicle> addVehicle(ServiceRequest<Vehicle> input) {
 
         logger.info("Start VehicleController...addVehicle");
         try {
-            apiRequestValidator.validate(inputVehicle.getPayload(), ApiName.addVehicleApi);
-            Vehicle output = vehicleService.addVehicle(inputVehicle.getPayload());
+            apiRequestValidator.validate(input.getPayload(), ApiName.addVehicleApi);
+            Vehicle output = vehicleService.addVehicle(input.getPayload());
             ServiceResponse<Vehicle> serviceResponse = new ServiceResponse<>();
             serviceResponse.setResult(output);
             serviceResponse.setStatus(ServiceStatus.SUCCESS);

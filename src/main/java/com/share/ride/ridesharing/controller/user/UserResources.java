@@ -1,8 +1,8 @@
 package com.share.ride.ridesharing.controller.user;
 
-import com.share.ride.ridesharing.model.ServiceRequest;
-import com.share.ride.ridesharing.model.ServiceResponse;
-import com.share.ride.ridesharing.model.User;
+import com.share.ride.ridesharing.contract.ServiceRequest;
+import com.share.ride.ridesharing.contract.ServiceResponse;
+import com.share.ride.ridesharing.contract.User;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,5 +14,5 @@ public interface UserResources {
 
     @ResponseBody
     @PostMapping(path = "", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    ServiceResponse<User> addUser(@RequestBody ServiceRequest<User> inputUser);
+    ServiceResponse<User> addUser(@RequestBody ServiceRequest<User> input);
 }

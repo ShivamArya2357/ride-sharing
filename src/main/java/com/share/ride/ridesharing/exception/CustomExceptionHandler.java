@@ -1,6 +1,6 @@
 package com.share.ride.ridesharing.exception;
 
-import com.share.ride.ridesharing.model.ServiceResponse;
+import com.share.ride.ridesharing.contract.ServiceResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

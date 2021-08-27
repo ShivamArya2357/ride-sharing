@@ -1,4 +1,4 @@
-package com.share.ride.ridesharing.model;
+package com.share.ride.ridesharing.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @JsonSerialize
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Vehicle extends BaseModel {
+public class VehicleEntity extends BaseModel {
 
     @JsonProperty("vehicleOwner")
     private String vehicleOwner;
@@ -19,20 +19,23 @@ public class Vehicle extends BaseModel {
     @JsonProperty("vehicleNo")
     private String vehicleNo;
 
+    @JsonProperty("capacity")
+    private Integer capacity;
+
     @JsonProperty("userId")
     private String userId;
 
-    public Vehicle() {
+    public VehicleEntity() {
     }
 
-    public Vehicle(String vehicleOwner, String vehicleModel, String vehicleNo) {
+    public VehicleEntity(String vehicleOwner, String vehicleModel, String vehicleNo) {
 
         this.vehicleOwner = vehicleOwner;
         this.vehicleModel = vehicleModel;
         this.vehicleNo = vehicleNo;
     }
 
-    public Vehicle(String vehicleModel, String vehicleNo) {
+    public VehicleEntity(String vehicleModel, String vehicleNo) {
 
         this.vehicleModel = vehicleModel;
         this.vehicleNo = vehicleNo;
@@ -60,6 +63,14 @@ public class Vehicle extends BaseModel {
 
     public void setVehicleNo(String vehicleNo) {
         this.vehicleNo = vehicleNo;
+    }
+
+    public Integer getCapacity() {
+        return capacity;
+    }
+
+    public void setCapacity(Integer capacity) {
+        this.capacity = capacity;
     }
 
     public String getUserId() {

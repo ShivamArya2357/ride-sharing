@@ -1,16 +1,14 @@
-package com.share.ride.ridesharing.model;
+package com.share.ride.ridesharing.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import java.util.List;
-
 @JsonSerialize
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class User extends BaseModel {
+public class UserEntity extends BaseModel {
 
     @JsonProperty("userName")
     private String userName;
@@ -21,6 +19,9 @@ public class User extends BaseModel {
     @JsonProperty("age")
     private Integer age;
 
+    @JsonProperty("mobileNo")
+    private String mobileNo;
+
     @JsonProperty("offeredRide")
     private Integer offeredRide = 0;
 
@@ -30,10 +31,10 @@ public class User extends BaseModel {
     @JsonProperty("rideId")
     private String rideId;
 
-    public User() {
+    public UserEntity() {
     }
 
-    public User(String userName, String gender, Integer age) {
+    public UserEntity(String userName, String gender, Integer age) {
 
         this.userName = userName;
         this.gender = gender;
@@ -62,6 +63,14 @@ public class User extends BaseModel {
 
     public void setAge(Integer age) {
         this.age = age;
+    }
+
+    public String getMobileNo() {
+        return mobileNo;
+    }
+
+    public void setMobileNo(String mobileNo) {
+        this.mobileNo = mobileNo;
     }
 
     public Integer getOfferedRide() {
