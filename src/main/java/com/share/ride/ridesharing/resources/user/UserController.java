@@ -1,12 +1,12 @@
-package com.share.ride.ridesharing.controller.vehicle;
+package com.share.ride.ridesharing.resources.user;
 
-import com.share.ride.ridesharing.contract.Vehicle;
+import com.share.ride.ridesharing.contract.User;
 import com.share.ride.ridesharing.enums.ApiName;
 import com.share.ride.ridesharing.enums.ServiceStatus;
 import com.share.ride.ridesharing.exception.RideSharingException;
 import com.share.ride.ridesharing.contract.ServiceRequest;
 import com.share.ride.ridesharing.contract.ServiceResponse;
-import com.share.ride.ridesharing.service.vehicle.VehicleService;
+import com.share.ride.ridesharing.service.user.UserService;
 import com.share.ride.ridesharing.validation.ApiRequestValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,24 +16,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Service
-public class VehicleController implements VehicleResources {
+public class UserController implements UserResources {
 
-    private static final Logger logger = LoggerFactory.getLogger(VehicleController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private ApiRequestValidator apiRequestValidator;
 
     @Autowired
-    private VehicleService vehicleService;
+    private UserService userService;
 
     @Override
-    public ServiceResponse<Vehicle> addVehicle(ServiceRequest<Vehicle> input) {
+    public ServiceResponse<User> addUser(ServiceRequest<User> input) {
 
-        logger.info("Start VehicleController...addVehicle");
+        logger.info("Start UserController...addUser");
         try {
-            apiRequestValidator.validate(input.getPayload(), ApiName.addVehicleApi);
-            Vehicle output = vehicleService.addVehicle(input.getPayload());
-            ServiceResponse<Vehicle> serviceResponse = new ServiceResponse<>();
+            apiRequestValidator.validate(input.getPayload(), ApiName.addUserApi);
+            User output = userService.addUser(input.getPayload());
+            ServiceResponse<User> serviceResponse = new ServiceResponse<>();
             serviceResponse.setResult(output);
             serviceResponse.setStatus(ServiceStatus.SUCCESS);
             logger.info("End UserController...addUser");

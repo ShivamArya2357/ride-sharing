@@ -1,4 +1,4 @@
-package com.share.ride.ridesharing.controller.user;
+package com.share.ride.ridesharing.resources.user;
 
 import com.share.ride.ridesharing.contract.ServiceRequest;
 import com.share.ride.ridesharing.contract.ServiceResponse;

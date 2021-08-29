@@ -1,4 +1,4 @@
-package com.share.ride.ridesharing.controller.ride;
+package com.share.ride.ridesharing.resources.ride;
 
 import com.share.ride.ridesharing.contract.Ride;
 import com.share.ride.ridesharing.enums.ApiName;
