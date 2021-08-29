@@ -6,7 +6,6 @@ import com.share.ride.ridesharing.enums.ServiceStatus;
 import com.share.ride.ridesharing.exception.RideSharingException;
 import com.share.ride.ridesharing.contract.ServiceRequest;
 import com.share.ride.ridesharing.contract.ServiceResponse;
-import com.share.ride.ridesharing.entity.VehicleEntity;
 import com.share.ride.ridesharing.service.vehicle.VehicleService;
 import com.share.ride.ridesharing.validation.ApiRequestValidator;
 import org.slf4j.Logger;

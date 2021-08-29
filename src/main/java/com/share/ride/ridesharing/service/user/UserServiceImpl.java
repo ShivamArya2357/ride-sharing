@@ -9,10 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Component
@@ -21,7 +18,6 @@ public class UserServiceImpl implements UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private static final List<UserEntity> users = new ArrayList<>();
-    private static final Set<String> existingUser = new HashSet<>();
 
     /**
      * This method will add input details
@@ -66,10 +62,9 @@ public class UserServiceImpl implements UserService {
      */
     private boolean isExistingUser(String mobileNo) {
 
-        if (existingUser.contains(mobileNo)) {
-            return true;
-        } else {
-            return false;
-        }
+        Optional<UserEntity> userEntityOpt = users.stream().filter(
+                user -> user.getMobileNo().equals(mobileNo)
+        ).findFirst();
+        return userEntityOpt.isPresent();
     }
 }

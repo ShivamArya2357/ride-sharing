@@ -13,32 +13,16 @@
       "type": "integer",
       "minimum": 18
     },
-    "selectionStrategy": {
+    "mobileNo": {
       "type": "string",
       "minLength": 1
-    },
-    "vehicle": {
-      "type": "object",
-      "properties": {
-        "vehicleOwner": {
-          "type": "string",
-          "minLength": 1
-        },
-        "vehicleModel": {
-          "type": "string",
-          "minLength": 1
-        },
-        "vehicleNo": {
-          "type": "string",
-          "minLength": 1
-        }
-      }
     }
   },
   "required": [
     "userName",
     "gender",
-    "age"
+    "age",
+    "mobileNo"
   ],
   "type": "object"
 }

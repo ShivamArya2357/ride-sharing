@@ -22,15 +22,6 @@ public class UserEntity extends BaseModel {
     @JsonProperty("mobileNo")
     private String mobileNo;
 
-    @JsonProperty("offeredRide")
-    private Integer offeredRide = 0;
-
-    @JsonProperty("takenRide")
-    private Integer takenRide = 0;
-
-    @JsonProperty("rideId")
-    private String rideId;
-
     public UserEntity() {
     }
 
@@ -71,29 +62,5 @@ public class UserEntity extends BaseModel {
 
     public void setMobileNo(String mobileNo) {
         this.mobileNo = mobileNo;
-    }
-
-    public Integer getOfferedRide() {
-        return offeredRide;
-    }
-
-    public void setOfferedRide(Integer offeredRide) {
-        this.offeredRide = offeredRide;
-    }
-
-    public Integer getTakenRide() {
-        return takenRide;
-    }
-
-    public void setTakenRide(Integer takenRide) {
-        this.takenRide = takenRide;
-    }
-
-    public String getRideId() {
-        return rideId;
-    }
-
-    public void setRideId(String rideId) {
-        this.rideId = rideId;
     }
 }

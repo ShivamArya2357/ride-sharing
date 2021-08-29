@@ -23,7 +23,7 @@ public interface RideResources {
     ServiceResponse<Ride> endRide(@RequestBody ServiceRequest<Ride> input);
 
     @ResponseBody
-    @GetMapping(path = "/statistic")
+    @GetMapping(path = "/stats")
     ServiceResponse rideStatistics();
 
     @ResponseBody

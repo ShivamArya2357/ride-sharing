@@ -1,16 +1,16 @@
 package com.share.ride.ridesharing.helper;
 
-import com.share.ride.ridesharing.entity.VehicleEntity;
 import com.share.ride.ridesharing.enums.ErrorCode;
 import com.share.ride.ridesharing.exception.RideSharingException;
 import com.share.ride.ridesharing.entity.UserEntity;
+import com.share.ride.ridesharing.entity.VehicleEntity;
 
 import java.util.*;
 
 public class RideHelper {
 
-    private static final Map<String, UserEntity> userMap = new HashMap<>();
-    private static final Map<String, VehicleEntity> vehicleMap = new HashMap<>();
+    private static final Map<String, UserEntity> userMapById = new HashMap<>();
+    private static final Map<String, VehicleEntity> vehicleMapById = new HashMap<>();
 
     /**
      * This method will create userMap
@@ -18,7 +18,7 @@ public class RideHelper {
      * @param userEntity
      */
     public static void createUserMap(UserEntity userEntity) {
-        userMap.put(userEntity.getId(), userEntity);
+        userMapById.put(userEntity.getId(), userEntity);
     }
 
     /**
@@ -27,7 +27,7 @@ public class RideHelper {
      * @param vehicleEntity
      */
     public static void createVehicleMap(VehicleEntity vehicleEntity) {
-        vehicleMap.put(vehicleEntity.getId(), vehicleEntity);
+        vehicleMapById.put(vehicleEntity.getId(), vehicleEntity);
     }
 
     /**
@@ -38,8 +38,8 @@ public class RideHelper {
      */
     public static UserEntity getUserById(String userId) {
 
-        if (userMap.containsKey(userId)) {
-            return userMap.get(userId);
+        if (userMapById.containsKey(userId)) {
+            return userMapById.get(userId);
         } else {
             throw new RideSharingException(ErrorCode.USER_NOT_FOUND);
         }
@@ -53,8 +53,8 @@ public class RideHelper {
      */
     public static VehicleEntity getVehicleById(String vehicleId) {
 
-        if (vehicleMap.containsKey(vehicleId)) {
-            return vehicleMap.get(vehicleId);
+        if (vehicleMapById.containsKey(vehicleId)) {
+            return vehicleMapById.get(vehicleId);
         } else {
             throw new RideSharingException(ErrorCode.VEHICLE_NOT_FOUND);
         }
@@ -67,7 +67,7 @@ public class RideHelper {
      */
     public static List<UserEntity> getAllUsers() {
 
-        return new ArrayList<>(userMap.values());
+        return new ArrayList<>(userMapById.values());
     }
 
     /**
@@ -77,6 +77,6 @@ public class RideHelper {
      */
     public static List<VehicleEntity> getAllVehicles() {
 
-        return new ArrayList<>(vehicleMap.values());
+        return new ArrayList<>(vehicleMapById.values());
     }
 }

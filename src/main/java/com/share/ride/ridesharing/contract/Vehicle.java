@@ -19,9 +19,6 @@ public class Vehicle extends BaseModel {
     @JsonProperty("vehicleNo")
     private String vehicleNo;
 
-    @JsonProperty("capacity")
-    private Integer capacity;
-
     @JsonProperty("userId")
     private String userId;
 
@@ -63,14 +60,6 @@ public class Vehicle extends BaseModel {
 
     public void setVehicleNo(String vehicleNo) {
         this.vehicleNo = vehicleNo;
-    }
-
-    public Integer getCapacity() {
-        return capacity;
-    }
-
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
     }
 
     public String getUserId() {

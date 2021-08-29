@@ -10,7 +10,7 @@ import java.util.List;
 @JsonSerialize
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Rides extends BaseModel {
+public class Rides {
 
     @JsonProperty("rides")
     private List<Ride> rides;

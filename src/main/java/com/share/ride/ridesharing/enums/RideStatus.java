@@ -1,6 +1,6 @@
 package com.share.ride.ridesharing.enums;
 
-public enum Status {
+public enum RideStatus {
 
     OFFERED, IN_PROGRESS, ENDED
 }

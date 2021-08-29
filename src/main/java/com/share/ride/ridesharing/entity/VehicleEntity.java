@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.share.ride.ridesharing.enums.VehicleStatus;
+
+import static com.share.ride.ridesharing.enums.VehicleStatus.READY;
 
 @JsonSerialize
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class VehicleEntity extends BaseModel {
-
-    @JsonProperty("vehicleOwner")
-    private String vehicleOwner;
 
     @JsonProperty("vehicleModel")
     private String vehicleModel;
@@ -19,8 +19,8 @@ public class VehicleEntity extends BaseModel {
     @JsonProperty("vehicleNo")
     private String vehicleNo;
 
-    @JsonProperty("capacity")
-    private Integer capacity;
+    @JsonProperty("vehicleStatus")
+    private VehicleStatus vehicleStatus = READY;
 
     @JsonProperty("userId")
     private String userId;
@@ -28,25 +28,10 @@ public class VehicleEntity extends BaseModel {
     public VehicleEntity() {
     }
 
-    public VehicleEntity(String vehicleOwner, String vehicleModel, String vehicleNo) {
-
-        this.vehicleOwner = vehicleOwner;
-        this.vehicleModel = vehicleModel;
-        this.vehicleNo = vehicleNo;
-    }
-
     public VehicleEntity(String vehicleModel, String vehicleNo) {
 
         this.vehicleModel = vehicleModel;
         this.vehicleNo = vehicleNo;
-    }
-
-    public String getVehicleOwner() {
-        return vehicleOwner;
-    }
-
-    public void setVehicleOwner(String vehicleOwner) {
-        this.vehicleOwner = vehicleOwner;
     }
 
     public String getVehicleModel() {
@@ -65,12 +50,12 @@ public class VehicleEntity extends BaseModel {
         this.vehicleNo = vehicleNo;
     }
 
-    public Integer getCapacity() {
-        return capacity;
+    public VehicleStatus getVehicleStatus() {
+        return vehicleStatus;
     }
 
-    public void setCapacity(Integer capacity) {
-        this.capacity = capacity;
+    public void setVehicleStatus(VehicleStatus vehicleStatus) {
+        this.vehicleStatus = vehicleStatus;
     }
 
     public String getUserId() {

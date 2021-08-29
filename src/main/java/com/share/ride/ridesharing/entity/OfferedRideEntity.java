@@ -1,14 +1,17 @@
-package com.share.ride.ridesharing.contract;
+package com.share.ride.ridesharing.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.share.ride.ridesharing.enums.RideStatus;
+
+import static com.share.ride.ridesharing.enums.RideStatus.ENDED;
 
 @JsonSerialize
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Ride extends BaseModel {
+public class OfferedRideEntity extends BaseModel {
 
     @JsonProperty("origin")
     private String origin;
@@ -19,11 +22,8 @@ public class Ride extends BaseModel {
     @JsonProperty("availableSeats")
     private Integer availableSeats;
 
-    @JsonProperty("vehicleModel")
-    private String vehicleModel;
-
-    @JsonProperty("vehicleNo")
-    private String vehicleNo;
+    @JsonProperty("status")
+    private RideStatus rideStatus = ENDED;
 
     @JsonProperty("userId")
     private String userId;
@@ -31,23 +31,12 @@ public class Ride extends BaseModel {
     @JsonProperty("vehicleId")
     private String vehicleId;
 
-    @JsonProperty("selectionStrategy")
-    private String selectionStrategy;
-
     public String getOrigin() {
         return origin;
     }
 
     public void setOrigin(String origin) {
         this.origin = origin;
-    }
-
-    public Integer getAvailableSeats() {
-        return availableSeats;
-    }
-
-    public void setAvailableSeats(Integer availableSeats) {
-        this.availableSeats = availableSeats;
     }
 
     public String getDestination() {
@@ -58,20 +47,20 @@ public class Ride extends BaseModel {
         this.destination = destination;
     }
 
-    public String getVehicleModel() {
-        return vehicleModel;
+    public Integer getAvailableSeats() {
+        return availableSeats;
     }
 
-    public void setVehicleModel(String vehicleModel) {
-        this.vehicleModel = vehicleModel;
+    public void setAvailableSeats(Integer availableSeats) {
+        this.availableSeats = availableSeats;
     }
 
-    public String getVehicleNo() {
-        return vehicleNo;
+    public RideStatus getStatus() {
+        return rideStatus;
     }
 
-    public void setVehicleNo(String vehicleNo) {
-        this.vehicleNo = vehicleNo;
+    public void setStatus(RideStatus rideStatus) {
+        this.rideStatus = rideStatus;
     }
 
     public String getUserId() {
@@ -89,13 +78,4 @@ public class Ride extends BaseModel {
     public void setVehicleId(String vehicleId) {
         this.vehicleId = vehicleId;
     }
-
-    public String getSelectionStrategy() {
-        return selectionStrategy;
-    }
-
-    public void setSelectionStrategy(String selectionStrategy) {
-        this.selectionStrategy = selectionStrategy;
-    }
 }
-

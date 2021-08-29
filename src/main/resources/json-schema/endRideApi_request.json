@@ -13,19 +13,7 @@
       "type": "string",
       "minLength": 1
     },
-    "offeredBy": {
-      "type": "string",
-      "minLength": 1
-    },
-    "requestedBy": {
-      "type": "string",
-      "minLength": 1
-    },
     "origin": {
-      "type": "string",
-      "minLength": 1
-    },
-    "intermediateStop": {
       "type": "string",
       "minLength": 1
     },
