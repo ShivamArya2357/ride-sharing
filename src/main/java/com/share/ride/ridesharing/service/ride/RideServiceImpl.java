@@ -13,6 +13,7 @@ import com.share.ride.ridesharing.entity.VehicleEntity;
 import com.share.ride.ridesharing.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -28,8 +29,11 @@ public class RideServiceImpl implements RideService {
 
     private static final String MOST_VACANT = "Most Vacant";
 
-    private static final List<OfferedRideEntity> offeredRides = new ArrayList<>();
-    private static final List<TakenRideEntity> takenRides = new ArrayList<>();
+    private final List<OfferedRideEntity> offeredRides = new ArrayList<>();
+    private final List<TakenRideEntity> takenRides = new ArrayList<>();
+
+    @Autowired
+    private RideHelper rideHelper;
 
     /**
      * Using this method user can offer a ride
@@ -40,7 +44,7 @@ public class RideServiceImpl implements RideService {
     public Ride offerRide(Ride input) {
 
         logger.info("Inside RideServiceImpl...offerRide()");
-        VehicleEntity vehicleEntity = RideHelper.getVehicleById(input.getVehicleId());
+        VehicleEntity vehicleEntity = rideHelper.getVehicleById(input.getVehicleId());
         if (VehicleStatus.READY.equals(vehicleEntity.getVehicleStatus())) {
             vehicleEntity.setVehicleStatus(VehicleStatus.IN_PROGRESS);
             mapToRideEntity(input);
@@ -63,7 +67,7 @@ public class RideServiceImpl implements RideService {
         output.setOrigin(input.getOrigin());
         output.setDestination(input.getDestination());
         output.setAvailableSeats(input.getAvailableSeats());
-        UserEntity userEntity = RideHelper.getUserById(input.getUserId());
+        UserEntity userEntity = rideHelper.getUserById(input.getUserId());
         output.setUserId(userEntity.getId());
         output.setVehicleId(input.getVehicleId());
         input.setId(output.getId());
@@ -137,7 +141,7 @@ public class RideServiceImpl implements RideService {
         ).findFirst();
         if (offeredRideOpt.isPresent()) {
             OfferedRideEntity offeredRideEntity = offeredRideOpt.get();
-            VehicleEntity vehicleEntity = RideHelper.getVehicleById(offeredRideEntity.getVehicleId());
+            VehicleEntity vehicleEntity = rideHelper.getVehicleById(offeredRideEntity.getVehicleId());
             vehicleEntity.setVehicleStatus(VehicleStatus.READY);
             offeredRideEntity.setStatus(ENDED);
             return input;
@@ -154,7 +158,7 @@ public class RideServiceImpl implements RideService {
     public void rideStatistics() {
 
         logger.info("Inside RideServiceImpl...rideStatistics()");
-        List<UserEntity> users = RideHelper.getAllUsers();
+        List<UserEntity> users = rideHelper.getAllUsers();
         for (UserEntity user : users) {
             int takenRide = findRidesTakenByUser(user.getId());
             int offeredRide = findRidesOfferedByUser(user.getId());
@@ -321,8 +325,8 @@ public class RideServiceImpl implements RideService {
                 for (Map.Entry<OfferedRideEntity, OfferedRideEntity> entry : rideWithStopMap.entrySet()) {
                     OfferedRideEntity ridesFromOrigin = entry.getKey();
                     OfferedRideEntity ridesEndInDest = entry.getValue();
-                    VehicleEntity vehicleEntity1 = RideHelper.getVehicleById(ridesFromOrigin.getVehicleId());
-                    VehicleEntity vehicleEntity2 = RideHelper.getVehicleById(ridesEndInDest.getVehicleId());
+                    VehicleEntity vehicleEntity1 = rideHelper.getVehicleById(ridesFromOrigin.getVehicleId());
+                    VehicleEntity vehicleEntity2 = rideHelper.getVehicleById(ridesEndInDest.getVehicleId());
                     String vehicleModel1 = vehicleEntity1.getVehicleModel();
                     String vehicleModel2 = vehicleEntity2.getVehicleModel();
                     if (vehicleModel1.equalsIgnoreCase(selectionStrategy)
@@ -375,7 +379,7 @@ public class RideServiceImpl implements RideService {
             try {
                 PreferredVehicle.valueOf(selectionStrategy.toUpperCase());
                 ridesFilteredWithStrategy = allRides.stream().filter(extractedRide -> {
-                        VehicleEntity vehicleEntity = RideHelper.getVehicleById(extractedRide.getVehicleId());
+                        VehicleEntity vehicleEntity = rideHelper.getVehicleById(extractedRide.getVehicleId());
                         return vehicleEntity.getVehicleModel().equalsIgnoreCase(selectionStrategy);
                 }).collect(Collectors.toList());
             } catch (Exception e) {

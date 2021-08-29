@@ -4,20 +4,22 @@ import com.share.ride.ridesharing.enums.ErrorCode;
 import com.share.ride.ridesharing.exception.RideSharingException;
 import com.share.ride.ridesharing.entity.UserEntity;
 import com.share.ride.ridesharing.entity.VehicleEntity;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component
 public class RideHelper {
 
-    private static final Map<String, UserEntity> userMapById = new HashMap<>();
-    private static final Map<String, VehicleEntity> vehicleMapById = new HashMap<>();
+    private final Map<String, UserEntity> userMapById = new HashMap<>();
+    private final Map<String, VehicleEntity> vehicleMapById = new HashMap<>();
 
     /**
      * This method will create userMap
      *
      * @param userEntity
      */
-    public static void createUserMap(UserEntity userEntity) {
+    public void createUserMap(UserEntity userEntity) {
         userMapById.put(userEntity.getId(), userEntity);
     }
 
@@ -26,7 +28,7 @@ public class RideHelper {
      *
      * @param vehicleEntity
      */
-    public static void createVehicleMap(VehicleEntity vehicleEntity) {
+    public void createVehicleMap(VehicleEntity vehicleEntity) {
         vehicleMapById.put(vehicleEntity.getId(), vehicleEntity);
     }
 
@@ -36,7 +38,7 @@ public class RideHelper {
      * @param userId
      * @return user
      */
-    public static UserEntity getUserById(String userId) {
+    public UserEntity getUserById(String userId) {
 
         if (userMapById.containsKey(userId)) {
             return userMapById.get(userId);
@@ -51,7 +53,7 @@ public class RideHelper {
      * @param vehicleId
      * @return user
      */
-    public static VehicleEntity getVehicleById(String vehicleId) {
+    public VehicleEntity getVehicleById(String vehicleId) {
 
         if (vehicleMapById.containsKey(vehicleId)) {
             return vehicleMapById.get(vehicleId);
@@ -65,7 +67,7 @@ public class RideHelper {
      *
      * @return users
      */
-    public static List<UserEntity> getAllUsers() {
+    public List<UserEntity> getAllUsers() {
 
         return new ArrayList<>(userMapById.values());
     }
@@ -75,7 +77,7 @@ public class RideHelper {
      *
      * @return users
      */
-    public static List<VehicleEntity> getAllVehicles() {
+    public List<VehicleEntity> getAllVehicles() {
 
         return new ArrayList<>(vehicleMapById.values());
     }

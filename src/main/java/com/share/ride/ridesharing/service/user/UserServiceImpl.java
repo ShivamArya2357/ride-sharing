@@ -7,6 +7,7 @@ import com.share.ride.ridesharing.helper.RideHelper;
 import com.share.ride.ridesharing.entity.UserEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -17,7 +18,10 @@ public class UserServiceImpl implements UserService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
-    private static final List<UserEntity> users = new ArrayList<>();
+    private final List<UserEntity> users = new ArrayList<>();
+
+    @Autowired
+    private RideHelper rideHelper;
 
     /**
      * This method will add input details
@@ -49,7 +53,7 @@ public class UserServiceImpl implements UserService {
         userEntity.setGender(input.getGender());
         userEntity.setAge(input.getAge());
         userEntity.setMobileNo(input.getMobileNo());
-        RideHelper.createUserMap(userEntity);
+        rideHelper.createUserMap(userEntity);
         input.setId(userEntity.getId());
         users.add(userEntity);
     }
