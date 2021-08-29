@@ -1,5 +1,5 @@
 # ride-sharing-app
-This is a ride sharing application
+This is a ride sharing application developed in Spring Boot
 
 Requirements: Java 8
 
