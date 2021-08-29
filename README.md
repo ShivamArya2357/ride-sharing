@@ -19,5 +19,5 @@ UserEntity and TakenRideEntity are in One-to-Many relationship
 
 UserEntity and VehicleEntity are in One-to-Many relationship
 
-To test the application use the test class file. Location of the test path is src/test/java/com.share.ride.ridesharing/RideSharingAppTests.
+To test the application use the test class file, which is located in src/test/java/com.share.ride.ridesharing pacakge.
 
